@@ -1,0 +1,26 @@
+{{ if .Values.rbac.enabled }}
+{{- $jenkinsname := .Values.jenkins4env.name}}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: jenkins
+  name: {{ $jenkinsname}}-sa
+  namespace: {{ .Release.Namespace }}
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: {{ .Values.rbac.roleBindKind }}
+metadata:
+  name: {{ $jenkinsname}}-role-binding
+  labels:
+    app: jenkins
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: {{ .Values.rbac.roleKind }}
+  name: {{ .Values.rbac.rolename }}
+subjects:
+- kind: ServiceAccount
+  name: {{ $jenkinsname}}-sa
+  namespace: {{ .Release.Namespace }}
+{{ end }}

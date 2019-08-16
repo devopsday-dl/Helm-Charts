@@ -1,0 +1,60 @@
+{{- $jenkinsname := .Values.jenkins4env.name}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name}}
+  namespace: {{ .Release.Namespace}}
+  labels:
+    app: {{ $jenkinsname}}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $jenkinsname}}
+  template:
+    metadata:
+      labels:
+        app: {{ $jenkinsname }}
+    spec:
+      serviceAccountName: {{ $jenkinsname}}-sa
+      initContainers:
+      - name: {{ .Values.image.initcontainer.name}}
+        image: {{ .Values.image.initcontainer.tag}}
+        command: ["/bin/sh", "-c"]
+        args:
+          - chown -R 1000:1000 /var/jenkins_home;
+        volumeMounts:
+        - name: {{ .Values.volume.name}}
+          mountPath: {{ .Values.volume.mountPath}}
+      containers:
+      - name: {{ .Values.image.jenkins.name}}
+        image: {{ .Values.image.jenkins.tag}}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+          - name: web
+            containerPort: 8080
+            protocol: TCP
+          - name: agent
+            containerPort: 50000
+            protocol: TCP
+        env:
+        {{- with .Values.resourceLimit}}
+          - name: LIMITS_MEMORY
+            valueFrom:
+              resourceFieldRef:
+                resource: limits.memory
+                divisor: {{ .divisor}}
+        {{- end}}
+        {{- range $key, $value := .Values.env.jenkins}}
+          - name: {{ $key }}
+            value: {{ $value | quote}}
+        {{- end}}
+        resources:
+{{ toYaml .Values.resources | indent 12 }}
+        volumeMounts:
+          - name: {{ .Values.volume.name}}
+            mountPath: {{ .Values.volume.mountPath}}
+      volumes:
+        - name: {{ .Values.volume.name}}
+          persistentVolumeClaim:
+            claimName: {{ .Release.Namespace}}-pvc

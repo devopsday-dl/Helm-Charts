@@ -1,0 +1,20 @@
+{{- $jenkinsname := .Values.jenkins4env.name}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: jenkins4{{ $jenkinsname }}
+  labels:
+    app: {{ $jenkinsname }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port1.value }}
+      targetPort: {{ .Values.service.port1.value }}
+      protocol: TCP
+      name: {{ .Values.service.port1.name }}
+    - port: {{ .Values.service.port2.value }}
+      targetPort: {{ .Values.service.port2.value }}
+      protocol: TCP
+      name: {{ .Values.service.port2.name }}
+  selector:
+    app: {{ $jenkinsname }}

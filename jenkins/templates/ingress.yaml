@@ -1,0 +1,31 @@
+{{- $namespace := .Release.Namespace -}}
+{{- $chartname := .Chart.Name -}}
+{{- $rootpath := .Values.ingress.path -}}
+{{- if .Values.ingress.enabled}}
+{{- $jenkinsname := .Values.jenkins4env.name}}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ $jenkinsname}}-jenkins-ingress
+{{- with .Values.ingress.annotations }}
+  annotations:
+{{ toYaml . | indent 4 }}
+{{- end -}}
+{{- with .Values.ingress}}
+spec:
+  tls:
+    - hosts:
+      - {{ .hosts.name | quote }}
+      secretName: {{ .tls.secretName }}
+  rules:
+    - host: {{ .hosts.name | quote }}
+      http:
+        paths:
+          - path: {{ $rootpath}}jenkins
+            backend:
+{{- end}}
+              serviceName: jenkins4{{ $jenkinsname }}
+              {{- with .Values.service.port1}}
+              servicePort: {{ .value }}
+              {{- end}}
+{{- end}}

@@ -1,0 +1,8 @@
+apiVersion: v1
+appVersion: "1.0.0"
+description: Jenkins helm charts 
+name: jenkins
+version: 1.0.0
+maintainers:
+  - name: xiaomage
+    email: devops008@cn.ibm.com

@@ -1,0 +1,16 @@
+{{- if .Values.persistentVolume.enabled }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ .Release.Namespace}}-pvc
+  labels:
+    app: jenkins
+  annotations:
+    volume.beta.kubernetes.io/storage-class: {{ .Values.persistentVolume.sc | quote }}
+spec:
+  accessModes:
+    - {{ .Values.persistentVolume.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.persistentVolume.size | quote }}
+{{- end }}
