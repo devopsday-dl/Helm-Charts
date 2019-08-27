@@ -1,0 +1,42 @@
+replicaCount: 1
+
+canary:
+  enable: true
+
+
+env:
+  running_env: dev
+  name: devops
+  client: helm
+  server: tiller
+  version: V1
+
+image:
+  repository: dllhb/go_test
+  tag: v1.4
+  pullPolicy: IfNotPresent
+  canary_tag: v1.3
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  annotations: 
+    ingress.bluemix.net/redirect-to-https: "True"
+  path: /devopsday
+  hosts:
+    - devopsday.com
+  tls: 
+    - secretName: devopsday-tls
+      hosts:
+        - devopsday.com
+
+resources: 
+   limits:
+    cpu: 100m
+    memory: 128Mi
+   requests:
+    cpu: 100m
+    memory: 128Mi

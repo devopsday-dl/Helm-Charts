@@ -1,0 +1,37 @@
+{{- if .Values.canary.enable -}}
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-canary
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+        version: canary
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.canary_tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 9999
+              protocol: TCP
+          env:
+          {{- range $key, $value := .Values.env }}
+          {{- if eq $key "version" }}
+          - name: {{ $key }}
+            value: "V2"
+          {{- else }}
+          - name: {{ $key }}
+            value: {{ $value }}
+          {{- end}}
+          {{- end}}
+{{- end -}}
