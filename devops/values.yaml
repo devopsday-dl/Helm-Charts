@@ -12,7 +12,7 @@ env:
   version: V1
 
 image:
-  repository: dllhb/go_test
+  repository: dllhb/devopsday
   tag: v1.4
   pullPolicy: IfNotPresent
   canary_tag: v1.3
